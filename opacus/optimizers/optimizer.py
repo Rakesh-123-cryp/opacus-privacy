@@ -207,6 +207,7 @@ class DPOptimizer(Optimizer):
         loss_reduction: str = "mean",
         generator=None,
         secure_mode: bool = False,
+        mask = None
         **kwargs,
     ):
         """
@@ -245,7 +246,8 @@ class DPOptimizer(Optimizer):
         self.secure_mode = secure_mode
         self._step_skip_queue = []
         self._is_last_step_skipped = False
-
+        self.mask = mask
+        
         for p in self.params:
             p.summed_grad = None
 
@@ -479,7 +481,7 @@ class DPOptimizer(Optimizer):
         Adds noise to clipped gradients. Stores clipped and noised result in ``p.grad``
         """
 
-        for p in self.params:
+        for ind, p in enumerate(self.params):
             _check_processed_flag(p.summed_grad)
 
             noise = _generate_noise(
@@ -488,6 +490,9 @@ class DPOptimizer(Optimizer):
                 generator=self.generator,
                 secure_mode=self.secure_mode,
             )
+            if self.mask is not None:
+                noise = torch.mul(noise, torch.tensor(self.mask[ind]).to('cuda'))
+                
             p.grad = (p.summed_grad + noise).view_as(p)
 
             _mark_as_processed(p.summed_grad)

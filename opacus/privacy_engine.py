@@ -137,6 +137,7 @@ class PrivacyEngine:
             loss_reduction=loss_reduction,
             generator=generator,
             secure_mode=self.secure_mode,
+            mask = mask
             **kwargs,
         )
 
@@ -309,6 +310,7 @@ class PrivacyEngine:
         clipping: str = "flat",
         noise_generator=None,
         grad_sample_mode: str = "hooks",
+        mask = None
         **kwargs,
     ) -> Union[
         Tuple[GradSampleModule, DPOptimizer, DataLoader],
@@ -423,6 +425,7 @@ class PrivacyEngine:
             distributed=distributed,
             clipping=clipping,
             grad_sample_mode=grad_sample_mode,
+            mask = mask,
             **kwargs,
         )
 
